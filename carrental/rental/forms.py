@@ -1,6 +1,5 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, inlineformset_factory, TextInput, Select, DateInput
 from django.contrib.auth.forms import UserCreationForm
-from django.forms.models import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 from . import models
 
@@ -11,8 +10,8 @@ class RegistrationForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2', 'first_name', 'last_name', 'phone', 'identity_document_type', 'identity_document_no']
         labels = {
             'phone': _("Numer telefonu"),
-            'identity_document_type': _("Typ dokumentu tożsamości"),
-            'identity_document_no': _("Numer dokumentu tożsamości"),
+            'identity_document_type': _("Typ dokumentu tożsamosci"),
+            'identity_document_no': _("Numer dokumentu tożsamosci")
         }
 
 class AddressForm(ModelForm):
@@ -29,10 +28,27 @@ class AddressForm(ModelForm):
         }
         # fields = ['country', 'city', 'post_code', 'street', 'building_no', 'appartment_no']
 
+
+class OrderForm(ModelForm):
+    class Meta:
+        model = models.Order
+        exclude = ['id', 'order_value', 'payment_status', 'declared_order_duration'] 
+        widgets = {
+            'customer': TextInput(attrs={'class': 'mb-3 form-control'}),
+            'car': TextInput(attrs={'class': 'mb-3 form-control', 'readonly': True}),
+            'order_value': TextInput(attrs={'class': 'mb-3 form-control'}),
+            'declared_order_duration': TextInput(attrs={'class': 'mb-3 form-control'}),
+            'pickup_date': DateInput(attrs={'class': 'mb-3 form-control', 'type': 'date'}),
+            'return_date': DateInput(attrs={'class': 'mb-3 form-control', 'type': 'date'}),
+            'deposit': TextInput(attrs={'class': 'mb-3 form-control', 'readonly': True}),
+            'payment_method': Select(attrs={'class': 'mb-3 form-control'}),
+            'payment_status': TextInput(attrs={'class': 'mb-3 form-control'}),
+        }
+
 UserAddressFormSet = inlineformset_factory(
-    parent_model=models.User, 
-    model=models.Address, 
-    form=AddressForm, 
+    parent_model=models.User,
+    model= models.Address,
+    form=AddressForm,
     extra=0,
     min_num=1,
     can_delete=False,
